@@ -1,4 +1,4 @@
-figma.showUI(__html__);
+figma.showUI(__html__)
 
 type SceneNodeSet = [SceneNode, SceneNode]
 type Spacing = [string, string]
@@ -26,26 +26,8 @@ const px2spacing = (px: number, { maxSizeAsPx, isPxOnly }: GetSpacingPayload = {
   return [`${unit}`, `${(unit * 4) / 16}rem`]
 }
 
-console.assert(is(px2spacing(0), ['0', '0']), `px2spacing(0) => ['0', '0']`)
-console.assert(is(px2spacing(1), ['1px', '0.0625rem']), `px2spacing(1) => ['1px', '0.0625rem']`)
-console.assert(is(px2spacing(2), ['2px', '0.125rem']), `px2spacing(2) => ['2px', '0.125rem']`)
-console.assert(is(px2spacing(3), ['3px', '0.1875rem']), `px2spacing(3) => ['3px', '0.1875rem']`)
-console.assert(is(px2spacing(4), ['1', '0.25rem']), `px2spacing(4) => ['1', '0.25rem']`)
-console.assert(is(px2spacing(26), ['26px', '1.625rem']), `px2spacing(26) => ['26px', '1.625rem']`)
-console.assert(is(px2spacing(27), ['27px', '1.6875rem']), `px2spacing(27) => ['27px', '1.6875rem']`)
-console.assert(is(px2spacing(28), ['7', '1.75rem']), `px2spacing(28) => ['7', '1.75rem']`)
-console.assert(is(px2spacing(29), ['7', '1.75rem']), `px2spacing(29) => ['7', '1.75rem']`)
-console.assert(is(px2spacing(30), ['8', '2rem']), `px2spacing(30) => ['8', '2rem']`)
-
-console.assert(is(px2spacing(29, { maxSizeAsPx: 29 }), ['29px', '1.8125rem']), `px2spacing(29, { maxSizeAsPx: 29 }) => ['29px', '1.8125rem']`)
-console.assert(is(px2spacing(29, { maxSizeAsPx: 29 }), ['29px', '1.8125rem']), `px2spacing(29, { isPxOnly: true }) => ['29px', '1.8125rem']`)
-
-
-const intersect = <T>(as: T[], bs: T[]): [T, T][] => (as.map(a => bs.map(b => [a, b])) as any).flat()
-
-console.assert(is(intersect([], []), []), `intersect([], []) => []`)
-console.assert(is(intersect([0, 1, 2], [0, 1]), [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1]]), `intersect([0, 1, 2], [0, 1]) => [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1]]`)
-
+const intersect = <T>(as: T[], bs: T[]): [T, T][] =>
+  (as.map((a) => bs.map((b) => [a, b])) as any).flat()
 
 const updateList = (list, spacing) => {
   list[spacing[0]] = spacing[1]
@@ -74,7 +56,6 @@ const getSpacings = (nodes, payload: GetSpacingPayload) => {
   return list
 }
 
-
 figma.ui.onmessage = ({ type, payload }) => {
   if (type === 'get-spacings') {
     const spacings = getSpacings(figma.currentPage.selection, payload)
@@ -95,6 +76,42 @@ figma.ui.onmessage = ({ type, payload }) => {
   // }
 
   if (type === 'cancel') {
-    figma.closePlugin();
+    figma.closePlugin()
   }
-};
+}
+
+/** --------------------
+ * Instant test
+ -------------------- */
+console.assert(is(px2spacing(0), ['0', '0']), `px2spacing(0) => ['0', '0']`)
+console.assert(is(px2spacing(1), ['1px', '0.0625rem']), `px2spacing(1) => ['1px', '0.0625rem']`)
+console.assert(is(px2spacing(2), ['2px', '0.125rem']), `px2spacing(2) => ['2px', '0.125rem']`)
+console.assert(is(px2spacing(3), ['3px', '0.1875rem']), `px2spacing(3) => ['3px', '0.1875rem']`)
+console.assert(is(px2spacing(4), ['1', '0.25rem']), `px2spacing(4) => ['1', '0.25rem']`)
+console.assert(is(px2spacing(26), ['26px', '1.625rem']), `px2spacing(26) => ['26px', '1.625rem']`)
+console.assert(is(px2spacing(27), ['27px', '1.6875rem']), `px2spacing(27) => ['27px', '1.6875rem']`)
+console.assert(is(px2spacing(28), ['7', '1.75rem']), `px2spacing(28) => ['7', '1.75rem']`)
+console.assert(is(px2spacing(29), ['7', '1.75rem']), `px2spacing(29) => ['7', '1.75rem']`)
+console.assert(is(px2spacing(30), ['8', '2rem']), `px2spacing(30) => ['8', '2rem']`)
+
+console.assert(
+  is(px2spacing(29, { maxSizeAsPx: 29 }), ['29px', '1.8125rem']),
+  `px2spacing(29, { maxSizeAsPx: 29 }) => ['29px', '1.8125rem']`
+)
+console.assert(
+  is(px2spacing(29, { isPxOnly: true }), ['29px', '1.8125rem']),
+  `px2spacing(29, { isPxOnly: true }) => ['29px', '1.8125rem']`
+)
+
+console.assert(is(intersect([], []), []), `intersect([], []) => []`)
+console.assert(
+  is(intersect([0, 1, 2], [0, 1]), [
+    [0, 0],
+    [0, 1],
+    [1, 0],
+    [1, 1],
+    [2, 0],
+    [2, 1],
+  ]),
+  `intersect([0, 1, 2], [0, 1]) => [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1]]`
+)
