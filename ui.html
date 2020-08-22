@@ -1,17 +1,106 @@
-<h2>Rectangle Creator</h2>
-<p>Count: <input id="count" value="5"></p>
-<button id="create">Create</button>
-<button id="cancel">Cancel</button>
+<link rel="stylesheet" href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" />
+<div class="px-4 py-2">
+  <div class="mb-2">
+    <div class="flex justify-between items-center">
+      <div class="flex space-x-2 items-center">
+        <label
+          id="px-only_text"
+          for="px-only"
+          class="block text-sm font-medium leading-5 text-gray-700 whitespace-no-wrap"
+        >
+          px only
+        </label>
+        <span
+          id="px-only"
+          role="checkbox"
+          tabindex="0"
+          aria-checked="false"
+          class="bg-gray-200 relative inline-flex flex-shrink-0 h-6 w-10 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:shadow-outline"
+        >
+          <span
+            id="px-only_item"
+            aria-hidden="true"
+            class="translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform transition ease-in-out duration-200"
+          ></span>
+        </span>
+      </div>
+      <div class="flex space-x-2 items-center">
+        <label
+          for="max-size-as-px"
+          class="block text-sm font-medium leading-5 text-gray-700 whitespace-no-wrap"
+        >
+          max size as px
+        </label>
+        <input
+          id="max-size-as-px"
+          type="number"
+          value="28"
+          class="w-12 text-sm leading-5 rounded border py-1 px-1"
+        />
+      </div>
+    </div>
+    <button
+      type="button"
+      id="get-spacing"
+      class="inline-flex justify-center mt-2 py-1 px-3 border border-transparent text-xs leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition duration-150 ease-in-out"
+    >
+      Get Spacing
+    </button>
+  </div>
+  <label for="px-only" class="block text-sm font-medium leading-5 text-gray-700 whitespace-no-wrap">
+    Result
+  </label>
+  <div class="flex rounded border">
+    <textarea id="result" readonly rows="4" class="block w-full text-sm leading-5"></textarea>
+  </div>
+</div>
+
 <script>
+  const $getSpacing = document.getElementById('get-spacing')
+  const $pxOnly = document.getElementById('px-only')
+  const $pxOnlyText = document.getElementById('px-only_text')
+  const $pxOnlyItem = document.getElementById('px-only_item')
+  const $maxSizeAsPx = document.getElementById('max-size-as-px')
 
-document.getElementById('create').onclick = () => {
-  const textbox = document.getElementById('count');
-  const count = parseInt(textbox.value, 10);
-  parent.postMessage({ pluginMessage: { type: 'create-rectangles', count } }, '*')
-}
+  $getSpacing.onclick = () => {
+    const isPxOnly = $pxOnly.getAttribute('aria-checked') === 'true'
+    const maxSizeAsPx = +$maxSizeAsPx.value
+    parent.postMessage(
+      { pluginMessage: { type: 'get-spacings', payload: { isPxOnly, maxSizeAsPx } } },
+      '*'
+    )
+  }
 
-document.getElementById('cancel').onclick = () => {
-  parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
-}
+  const togglePxOnly = () => {
+    const isChecked = $pxOnly.getAttribute('aria-checked') === 'true'
+    if (isChecked) {
+      $pxOnly.setAttribute('aria-checked', 'false')
+      $pxOnly.classList.add('bg-gray-200')
+      $pxOnly.classList.remove('bg-indigo-600')
+      $pxOnlyItem.classList.add('translate-x-0')
+      $pxOnlyItem.classList.remove('translate-x-4')
+    } else {
+      $pxOnly.setAttribute('aria-checked', 'true')
+      $pxOnly.classList.add('bg-indigo-600')
+      $pxOnly.classList.remove('bg-gray-200')
+      $pxOnlyItem.classList.add('translate-x-4')
+      $pxOnlyItem.classList.remove('translate-x-0')
+    }
+  }
 
+  $pxOnlyText.onclick = () => togglePxOnly()
+  $pxOnly.onclick = () => togglePxOnly()
+
+  // document.getElementById('cancel').onclick = () => {
+  //   parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
+  // }
+
+  onmessage = (ev) => {
+    const { type, payload } = ev.data.pluginMessage
+    if (type === 'result') {
+      const result = document.getElementById('result')
+      result.value = JSON.stringify(payload.spacings)
+      result.select()
+    }
+  }
 </script>
