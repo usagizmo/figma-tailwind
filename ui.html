@@ -1,4 +1,21 @@
 <link rel="stylesheet" href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" />
+<style>
+  .c-copied {
+    opacity: 0;
+  }
+  .is-flash {
+    animation: 1s ease-in flash;
+  }
+  @keyframes flash {
+    0%,
+    33.333333% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+</style>
 <div class="px-4 py-2">
   <div class="mb-2">
     <div class="flex justify-between items-center">
@@ -35,23 +52,36 @@
           id="max-size-as-px"
           type="number"
           value="28"
-          class="w-12 text-sm leading-5 rounded border py-1 px-1"
+          class="w-12 text-sm leading-5 rounded border p-1"
         />
       </div>
     </div>
-    <button
-      type="button"
-      id="get-spacing"
-      class="inline-flex justify-center mt-2 py-1 px-3 border border-transparent text-xs leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition duration-150 ease-in-out"
-    >
-      Get Spacing
-    </button>
+    <div class="relative flex items-center mt-2">
+      <button
+        type="button"
+        id="get-spacing"
+        class="inline-flex justify-center py-2 w-full border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition duration-150 ease-in-out"
+      >
+        Get Spacing
+      </button>
+      <p
+        id="copied"
+        class="c-copied pointer-events-none absolute inset-0 text-gray-700 bg-white border rounded-md flex justify-center items-center"
+      >
+        Copied!
+      </p>
+    </div>
   </div>
   <label for="px-only" class="block text-sm font-medium leading-5 text-gray-700 whitespace-no-wrap">
     Result
   </label>
   <div class="flex rounded border">
-    <textarea id="result" readonly rows="4" class="block w-full text-sm leading-5"></textarea>
+    <textarea
+      id="result"
+      readonly
+      rows="8"
+      class="block w-full text-xs leading-tight p-1"
+    ></textarea>
   </div>
 </div>
 
@@ -61,6 +91,8 @@
   const $pxOnlyText = document.getElementById('px-only_text')
   const $pxOnlyItem = document.getElementById('px-only_item')
   const $maxSizeAsPx = document.getElementById('max-size-as-px')
+  const $result = document.getElementById('result')
+  const $copied = document.getElementById('copied')
 
   $getSpacing.onclick = () => {
     const isPxOnly = $pxOnly.getAttribute('aria-checked') === 'true'
@@ -70,6 +102,9 @@
       '*'
     )
   }
+
+  $result.onfocus = () => $result.select()
+  $result.onmouseup = (ev) => ev.preventDefault()
 
   const togglePxOnly = () => {
     const isChecked = $pxOnly.getAttribute('aria-checked') === 'true'
@@ -98,9 +133,14 @@
   onmessage = (ev) => {
     const { type, payload } = ev.data.pluginMessage
     if (type === 'result') {
-      const result = document.getElementById('result')
-      result.value = JSON.stringify(payload.spacings)
-      result.select()
+      $result.value = JSON.stringify(payload, null, '  ') + '\n'
+      $result.select()
+      document.execCommand('copy')
+
+      $copied.classList.remove('is-flash')
+      requestAnimationFrame(() => {
+        $copied.classList.add('is-flash')
+      })
     }
   }
 </script>
